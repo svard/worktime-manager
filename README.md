@@ -1,6 +1,6 @@
 # worktime-manager
 
-FIXME
+Client server application for managing my time reporting.
 
 ## Prerequisites
 
@@ -16,4 +16,4 @@ To start a web server for the application, run:
 
 ## License
 
-Copyright © 2014 FIXME
+Copyright © 2014 Kristofer Svärd
