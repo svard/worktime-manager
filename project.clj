@@ -12,7 +12,10 @@
                  [com.novemberain/monger "1.7.0"]
                  [cheshire "5.1.1"]
                  ;cljs
-                 [org.clojure/clojurescript "0.0-2156"]]
+                 [org.clojure/clojurescript "0.0-2156"]
+                 [om "0.3.0"]
+                 [com.facebook/react "0.8.0.1"]
+                 [secretary "0.4.0"]]
 
   :source-paths ["src/clj" "src/cljs"]
 
@@ -25,4 +28,22 @@
 
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring-mock "0.1.5"]]}})
+                        [ring-mock "0.1.5"]]}}
+
+  :cljsbuild {
+              :builds [{:id "dev"
+                        :source-paths ["src/cljs"]
+                        :compiler {
+                                   :output-to "resources/public/js/main_dev.js"
+                                   :output-dir "resources/public/js/out"
+                                   :optimizations :none
+                                   :source-map true}}
+                       {
+                        :id "release"
+                        :source-paths ["src/cljs"]
+                        :compiler {
+                                   :output-to "resources/public/js/main.js"
+                                   :optimizations :advanced
+                                   :pretty-print false
+                                   :preamble ["react/react.min.js"]
+                                   :externs ["react/externs/react.js"]}}]})
