@@ -1,20 +1,22 @@
 (ns worktime-manager.core
-  (:require-macros [secretary.macros :refer [defroute]])
   (:require [goog.events :as events]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [secretary.core :as secretary])
+            [secretary.core :as secretary :include-macros true :refer [defroute]])
   (:import [goog History]
-           [goog.history EventType]))
+           [goog.history EventType]
+           [goog.date Date]))
 
 (enable-console-print!)
 
+;; (def time (Date.))
+
 (def app-state (atom {:login {:text "Hello login!"}
-                      :main {:text "Hello main!"}}))
+                      :main {:text "Hello main!" :time (Date.)}}))
 
-(defroute "" [] (swap! app-state assoc :route :main))
+(defroute "/" [] (swap! app-state assoc :route :main))
 
-(defroute "login" [] (swap! app-state assoc :route :login))
+(defroute "/login" [] (swap! app-state assoc :route :login))
 
 (def history (History.))
 
@@ -36,7 +38,8 @@
     om/IRender
     (render [_]
       (dom/div nil
-        (dom/h2 nil (:text content))))))
+        (dom/h2 nil (:text content))
+        (dom/p nil (str "This is week " (.getWeekNumber (:time content))))))))
 
 (defmulti select-view (fn [app _] (:route app)))
 

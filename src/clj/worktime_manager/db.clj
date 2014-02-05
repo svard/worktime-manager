@@ -20,7 +20,7 @@
 
 (defn get-report
   [id]
-  (find-one "reports" {:_id (ObjectId. id)}))
+  (find-one "reports" {:_id (ObjectId. ^String id)}))
 
 (defn get-reports-by-week
   [year week]

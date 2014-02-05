@@ -1,4 +1,4 @@
-(defproject worktime-manager "0.1.1-SNAPSHOT"
+(defproject worktime-manager "0.1.2-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [;clj
@@ -13,9 +13,9 @@
                  [cheshire "5.1.1"]
                  ;cljs
                  [org.clojure/clojurescript "0.0-2156"]
-                 [om "0.3.0"]
+                 [om "0.3.5"]
                  [com.facebook/react "0.8.0.1"]
-                 [secretary "0.4.0"]]
+                 [secretary "0.5.0"]]
 
   :source-paths ["src/clj" "src/cljs"]
 
@@ -28,7 +28,8 @@
 
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring-mock "0.1.5"]]}}
+                        [ring-mock "0.1.5"]]
+         :global-vars {*warn-on-reflection* true}}}
 
   :cljsbuild {
               :builds [{:id "dev"
