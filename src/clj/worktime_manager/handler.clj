@@ -6,7 +6,7 @@
             [monger.joda-time]
             [monger.json]
             [ring.middleware.json :as middleware]
-            [ring.util.response :refer [file-response response]]
+            [ring.util.response :refer [response header]]
             [taoensso.timbre :as timbre]
             [cheshire.core :refer [generate-string]]
             [clojure.java.io :refer [resource]]))
@@ -24,10 +24,10 @@
 (defn get-timereports [year-str week-str]
   (let [year (read-string year-str)
         week (dec (read-string week-str))]
-    (->> (get-reports-by-week year week)
-         (map #(update-in % [:week] inc))
-         (generate-string)
-         (response))))
+    (-> (get-reports-by-week year week)
+        (generate-string)
+        (response)
+        (header "Content-Type" "application/json"))))
 
 (defroutes api-routes
   (POST "/timereport" request (timereport (:body request)))

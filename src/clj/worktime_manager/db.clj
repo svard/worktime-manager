@@ -25,4 +25,5 @@
 (defn get-reports-by-week
   [year week]
   (aggregate "reports" [{"$project" {:total "$total" :arrival "$arrival" :leave "$leave" :week {"$week" "$arrival"} :year {"$year" "$arrival"}}}
-                        {"$match" {:week week :year year}}]))
+                        {"$match" {:week week :year year}}
+                        {"$project" {:total "$total" :arrival "$arrival" :leave "$leave"}}]))
