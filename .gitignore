@@ -3,6 +3,7 @@
 /classes
 /checkouts
 /resources/public/js
+/resources/public/css
 pom.xml
 pom.xml.asc
 db.conf
@@ -11,3 +12,4 @@ db.conf
 *.log
 /.lein-*
 /.nrepl-port
+/.sass-cache/

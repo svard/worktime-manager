@@ -16,4 +16,4 @@
     (render [_]
       (om/build tl/time-list (:reports app)))))
 
-(om/root app-state list-view (. js/document (getElementById "container")))
+(om/root app-state list-view (. js/document (getElementById "content")))
