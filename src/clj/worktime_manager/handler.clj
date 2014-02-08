@@ -7,14 +7,10 @@
             [monger.json]
             [ring.middleware.json :as middleware]
             [ring.util.response :refer [response header]]
-            [taoensso.timbre :as timbre]
             [cheshire.core :refer [generate-string]]
             [clojure.java.io :refer [resource]]))
 
-(timbre/refer-timbre)
-
 (defn timereport [body]
- (info body)
  (let [result (insert-report body)]
    (if (nil? result)
      {:status 500}
