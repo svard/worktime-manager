@@ -1,4 +1,1 @@
 language: clojure
-jdk:
-  - openjdk7
-  - openjdk6
