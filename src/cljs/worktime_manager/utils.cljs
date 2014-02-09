@@ -23,3 +23,12 @@
   (let [hours (/ time 3600)]
     (-> (.round js/Math (* hours 100))
         (/ 100))))
+
+(defn get-week-number [date]
+  (.setFirstDayOfWeek date 0)
+  (.getWeekNumber date))
+
+(defn disabled [disable classes]
+  (if disable
+    (str classes " disabled")
+    classes))

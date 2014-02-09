@@ -1,19 +1,31 @@
 (ns worktime-manager.main
-  (:require [goog.events :as events]
-            [om.core :as om :include-macros true]
+  (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [secretary.core :as secretary :include-macros true :refer [defroute]]
-            [worktime-manager.components.list :as tl]
+            [worktime-manager.components.table :as tbl]
+            [worktime-manager.components.pager :as pgr]
             [worktime-manager.utils :as utils]))
 
 (enable-console-print!)
 
 (def app-state (atom {:reports []}))
 
+(defn display-date-title [date-str]
+  (let [date (utils/str->date date-str)
+        year (.getYear date)]
+    (str "Showing w" (utils/get-week-number date) " " year)))
+
+(defn table-title-view [report owner]
+  (om/component
+   (dom/h4 #js {:className "text-center"} (display-date-title (:arrival report)))))
+
 (defn list-view [app owner]
   (reify
     om/IRender
     (render [_]
-      (om/build tl/time-list (:reports app)))))
+      (dom/div #js {:className "row"}
+        (om/build table-title-view (first (:reports app)))
+;;         (om/build tbl/table (:reports app))
+        (om/build tbl/table app)
+        (om/build pgr/pager app)))))
 
 (om/root app-state list-view (. js/document (getElementById "content")))
