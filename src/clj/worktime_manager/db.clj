@@ -13,10 +13,10 @@
 (set-db! (get-db "worktime_manager"))
 
 (defn insert-report
-  [{:keys [workTime arrivalTime leaveTime] :as report}]
+  [{:keys [workTime arrivalTime leaveTime lunchTime] :as report}]
   (let [arrival-date (from-long arrivalTime)
         leave-date (from-long leaveTime)]
-    (insert-and-return "reports" {:_id (ObjectId.) :total workTime :arrival arrival-date :leave leave-date})))
+    (insert-and-return "reports" {:_id (ObjectId.) :total workTime :lunch lunchTime :arrival arrival-date :leave leave-date})))
 
 (defn get-report
   [id]
@@ -24,6 +24,6 @@
 
 (defn get-reports-by-week
   [year week]
-  (aggregate "reports" [{"$project" {:total "$total" :arrival "$arrival" :leave "$leave" :week {"$week" "$arrival"} :year {"$year" "$arrival"}}}
+  (aggregate "reports" [{"$project" {:total "$total" :arrival "$arrival" :leave "$leave" :lunch "$lunch" :week {"$week" "$arrival"} :year {"$year" "$arrival"}}}
                         {"$match" {:week week :year year}}
-                        {"$project" {:total "$total" :arrival "$arrival" :leave "$leave"}}]))
+                        {"$project" {:total "$total" :arrival "$arrival" :leave "$leave" :lunch "$lunch"}}]))
