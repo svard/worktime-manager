@@ -3,28 +3,25 @@
             [om.dom :as dom :include-macros true]
             [worktime-manager.components.table :as tbl]
             [worktime-manager.components.pager :as pgr]
-            [worktime-manager.utils :as utils]))
+            [worktime-manager.utils :as utils])
+  (:import [goog.date DateTime]))
 
 (enable-console-print!)
 
-(def app-state (atom {:reports []}))
+(def app-state (atom {:reports []
+                      :current-date {:week (utils/get-week-number (DateTime.))
+                                     :year (.getYear (DateTime.))}}))
 
-(defn display-date-title [date-str]
-  (let [date (utils/str->date date-str)
-        year (.getYear date)]
-    (str "Showing w" (utils/get-week-number date) " " year)))
-
-(defn table-title-view [report owner]
+(defn table-title-view [date owner]
   (om/component
-   (dom/h4 #js {:className "text-center"} (display-date-title (:arrival report)))))
+   (dom/h4 #js {:className "text-center"} (str "Showing w" (:week date) " " (:year date)))))
 
 (defn list-view [app owner]
   (reify
     om/IRender
     (render [_]
       (dom/div #js {:className "row"}
-        (om/build table-title-view (first (:reports app)))
-;;         (om/build tbl/table (:reports app))
+        (om/build table-title-view (:current-date app))
         (om/build tbl/table app)
         (om/build pgr/pager app)))))
 

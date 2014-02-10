@@ -1,4 +1,4 @@
-(defproject worktime-manager "0.1.7-SNAPSHOT"
+(defproject worktime-manager "0.1.8-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [;clj
