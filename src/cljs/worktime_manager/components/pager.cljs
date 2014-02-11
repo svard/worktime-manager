@@ -16,9 +16,19 @@
       (when (= (:status response) 200)
         (om/transact! app [:reports] (fn [_] (:body response)))))))
 
-(defn handle-click [app f]
-  (om/transact! app [:current-date :week] f)
-  (load-async app))
+(defn handle-prev-click [app owner]
+  (let [first-week (om/get-state owner :first-week)
+        selected-week (get-in @app [:current-date :week])]
+    (when (> selected-week first-week)
+      (om/transact! app [:current-date :week] dec)
+      (load-async app))))
+
+(defn handle-next-click [app owner]
+  (let [selected-week (get-in @app [:current-date :week])
+        current-week (om/get-state owner :current-week)]
+    (when (< selected-week current-week)
+      (om/transact! app [:current-date :week] inc)
+      (load-async app))))
 
 (defn pager [app owner]
   (reify
@@ -33,7 +43,7 @@
     (render-state [_ {:keys [first-week current-week]}]
       (dom/ul #js {:className "pager"}
         (dom/li #js {:className (utils/disabled (<= (get-in app [:current-date :week]) first-week) "previous")}
-          (dom/a #js {:onClick #(handle-click app dec)} "Previous"))
+          (dom/a #js {:onClick #(handle-prev-click app owner)} "Previous"))
         (dom/li #js {:className (utils/disabled (>= (get-in app [:current-date :week]) current-week) "next")}
-          (dom/a #js {:onClick #(handle-click app inc)}
+          (dom/a #js {:onClick #(handle-next-click app owner)}
             (dom/span nil "Next")))))))

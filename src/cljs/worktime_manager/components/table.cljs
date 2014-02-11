@@ -18,14 +18,29 @@
   (-> (reduce #(+ % (:total %2)) 0 reports)
       (utils/seconds->hours)))
 
+(defn handle-change [app e]
+  (prn (.. e -target -value)))
+
 (defn table-row [report owner]
-  (om/component
-    (dom/tr nil
-      (dom/td nil (format-cell "date" report))
-      (dom/td nil (format-cell "from" report))
-      (dom/td nil (format-cell "to" report))
-      (dom/td nil (format-cell "lunch" report))
-      (dom/td nil (format-cell "total" report)))))
+  (reify
+    om/IRender
+    (render [_]
+      (let [total (format-cell "total" report)]
+        (dom/tr #js {:className (if (< total 7.75) "danger" "success")}
+          (dom/td nil
+            (dom/input #js {:type "text" :value (format-cell "date" report)
+                            :onChange #(handle-change report %)}))
+          (dom/td nil
+            (dom/input #js {:type "text" :value (format-cell "from" report)
+                            :onChange #(handle-change report %)}))
+          (dom/td nil
+            (dom/input #js {:type "text" :value (format-cell "to" report)
+                            :onChange #(handle-change report %)}))
+          (dom/td nil
+            (dom/input #js {:type "text" :value (format-cell "lunch" report)
+                            :onChange #(handle-change report %)}))
+          (dom/td nil
+            (dom/input #js {:type "text" :value total})))))))
 
 (defn table [app owner]
   (reify
