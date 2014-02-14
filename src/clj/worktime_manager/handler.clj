@@ -5,9 +5,8 @@
             [compojure.route :as route]
             [monger.joda-time]
             [monger.json]
-            [ring.middleware.json :as middleware]
+            [ring.middleware.format :as middleware]
             [ring.util.response :refer [response header]]
-            [cheshire.core :refer [generate-string]]
             [clojure.java.io :refer [resource]]))
 
 (defn timereport [body]
@@ -21,12 +20,18 @@
   (let [year (read-string year-str)
         week (dec (read-string week-str))]
     (-> (get-reports-by-week year week)
-        (generate-string)
         (response)
         (header "Content-Type" "application/json"))))
 
+(defn update-timereport [id body]
+  (let [result (update-report id body)]
+    (if (nil? result)
+      {:status 500}
+      {:status 200})))
+
 (defroutes api-routes
-  (POST "/timereport" request (timereport (:body request)))
+  (POST "/timereport" request (timereport (:body-params request)))
+  (PUT "/timereport/:id" {params :params body :body-params} (update-timereport (:id params) body))
   (GET "/timereport/:year/:week" [year week] (get-timereports year week)))
 
 (defroutes app-routes
@@ -37,4 +42,4 @@
 
 (def app
   (-> (handler/site app-routes)
-      (middleware/wrap-json-body {:keywords? true})))
+      (middleware/wrap-restful-format :formats [:json-kw :edn])))
