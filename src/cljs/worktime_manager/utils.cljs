@@ -1,6 +1,8 @@
 (ns worktime-manager.utils
   (:import [goog.date DateTime]))
 
+(def ^:const base-url "/api/timereport/")
+
 (defn str->date [date-str]
   (let [jsdate (js/Date. date-str)
         datetime (DateTime.)]

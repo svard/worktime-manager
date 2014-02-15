@@ -27,7 +27,7 @@
   nil)
 
 (defn update [body]
-  (let [url (str "/api/timereport/" (:_id body))]
+  (let [url (str utils/base-url (:_id body))]
     (http/put url {:body (dissoc body :_id) :headers {"Content-Type" "application/edn"}})))
 
 (defn end-edit-from [report new-time]
