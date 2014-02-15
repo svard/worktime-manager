@@ -28,6 +28,9 @@
   (.setFirstDayOfWeek date 0)
   (.getWeekNumber date))
 
+(defn diff-dates [d1 d2]
+  (/ (- (.getTime d1) (.getTime d2)) 1000))
+
 (defn disabled [disable classes]
   (if disable
     (str classes " disabled")

@@ -1,8 +1,13 @@
 (ns worktime-manager.components.table
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [worktime-manager.utils :as utils])
+            [worktime-manager.utils :as utils]
+            [clojure.string :as string]
+            [cljs-http.client :as http]
+            [goog.json :as json])
   (:import [goog.date DateTime]))
+
+(def ENTER_KEY 13)
 
 (defn format-cell [cell report]
   (let [from (utils/str->date (:arrival report))
@@ -19,7 +24,37 @@
       (utils/seconds->hours)))
 
 (defn handle-change [app e]
-  (prn (.. e -target -value)))
+  nil)
+
+(defn update [body]
+  (let [url (str "/api/timereport/" (:_id body))]
+    (http/put url {:body (dissoc body :_id) :headers {"Content-Type" "application/edn"}})))
+
+(defn end-edit-from [report new-time]
+  (let [[hours minutes seconds] (string/split new-time #":")
+        old-time (js/Date. (:arrival @report))]
+    (.setHours old-time hours)
+    (.setMinutes old-time minutes)
+    (.setSeconds old-time seconds)
+    (om/transact! report [:arrival] (fn [] (js/Date. (.getTime old-time))))
+    (om/transact! report [:total] (fn [] (- (utils/diff-dates (js/Date. (:leave @report)) old-time) (:lunch @report))))
+    (update @report)))
+
+(defn end-edit-to [report new-time]
+  (let [[hours minutes seconds] (string/split new-time #":")
+        old-time (js/Date. (:leave @report))]
+    (.setHours old-time hours)
+    (.setMinutes old-time minutes)
+    (.setSeconds old-time seconds)
+    (om/transact! report [:leave] (fn [] (js/Date. (.getTime old-time))))
+    (om/transact! report [:total] (fn [] (- (utils/diff-dates old-time (js/Date. (:arrival @report))) (:lunch @report))))
+    (update @report)))
+
+(defn end-edit-lunch [report new-time]
+  (let [seconds (* new-time 3600)]
+    (om/update! report assoc :lunch seconds)
+    (om/transact! report [:total] (fn [] (- (utils/diff-dates (js/Date. (:leave @report)) (js/Date. (:arrival @report))) seconds)))
+    (update @report)))
 
 (defn table-row [report owner]
   (reify
@@ -28,17 +63,22 @@
       (let [total (format-cell "total" report)]
         (dom/tr #js {:className (if (< total 7.75) "danger" "success")}
           (dom/td nil
-            (dom/input #js {:type "text" :value (format-cell "date" report)
-                            :onChange #(handle-change report %)}))
+            (dom/input #js {:type "text" :value (format-cell "date" report)}))
           (dom/td nil
             (dom/input #js {:type "text" :value (format-cell "from" report)
-                            :onChange #(handle-change report %)}))
+                            :onChange #(handle-change report %)
+                            :onKeyUp #(when (== (.-keyCode %) ENTER_KEY)
+                                        (end-edit-from report (.. % -target -value)))}))
           (dom/td nil
             (dom/input #js {:type "text" :value (format-cell "to" report)
-                            :onChange #(handle-change report %)}))
+                            :onChange #(handle-change report %)
+                            :onKeyUp #(when (== (.-keyCode %) ENTER_KEY)
+                                        (end-edit-to report (.. % -target -value)))}))
           (dom/td nil
             (dom/input #js {:type "text" :value (format-cell "lunch" report)
-                            :onChange #(handle-change report %)}))
+                            :onChange #(handle-change report %)
+                            :onKeyUp #(when (== (.-keyCode %) ENTER_KEY)
+                                        (end-edit-lunch report (.. % -target -value)))}))
           (dom/td nil
             (dom/input #js {:type "text" :value total})))))))
 
