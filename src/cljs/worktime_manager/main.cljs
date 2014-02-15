@@ -25,4 +25,4 @@
         (om/build tbl/table app)
         (om/build pgr/pager app)))))
 
-(om/root app-state list-view (. js/document (getElementById "content")))
+(om/root list-view app-state {:target (. js/document (getElementById "content"))})
