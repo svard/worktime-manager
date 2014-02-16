@@ -5,23 +5,23 @@
             [cljs.core.async :refer [put!]])
   (:import [goog.date DateTime]))
 
-(defn handle-prev-click [app owner]
+(defn handle-prev-click [date owner]
   (let [first-week (om/get-state owner :first-week)
-        selected-week (get-in @app [:current-date :week])
-        nav-chan (om/get-shared owner :nav-chan)]
+        selected-week (:week @date)
+        nav-chan (om/get-state owner :nav-chan)]
     (when (> selected-week first-week)
-      (om/transact! app [:current-date :week] dec)
-      (put! nav-chan [(get-in @app [:current-date :year]) (get-in @app [:current-date :week])]))))
+      (om/transact! date [:week] dec)
+      (put! nav-chan [(:year @date) (:week @date)]))))
 
-(defn handle-next-click [app owner]
-  (let [selected-week (get-in @app [:current-date :week])
+(defn handle-next-click [date owner]
+  (let [selected-week (:week @date)
         current-week (om/get-state owner :current-week)
-        nav-chan (om/get-shared owner :nav-chan)]
+        nav-chan (om/get-state owner :nav-chan)]
     (when (< selected-week current-week)
-      (om/transact! app [:current-date :week] inc)
-      (put! nav-chan [(get-in @app [:current-date :year]) (get-in @app [:current-date :week])]))))
+      (om/transact! date [:week] inc)
+      (put! nav-chan [(:year @date) (:week @date)]))))
 
-(defn pager [app owner]
+(defn pager [date owner]
   (reify
     om/IInitState
     (init-state [_]
@@ -30,8 +30,8 @@
     om/IRenderState
     (render-state [_ {:keys [first-week current-week]}]
       (dom/ul #js {:className "pager"}
-        (dom/li #js {:className (utils/disabled (<= (get-in app [:current-date :week]) first-week) "previous")}
-          (dom/a #js {:onClick #(handle-prev-click app owner)} "Previous"))
-        (dom/li #js {:className (utils/disabled (>= (get-in app [:current-date :week]) current-week) "next")}
-          (dom/a #js {:onClick #(handle-next-click app owner)}
+        (dom/li #js {:className (utils/disabled (<= (:week date) first-week) "previous")}
+          (dom/a #js {:onClick #(handle-prev-click date owner)} "Previous"))
+        (dom/li #js {:className (utils/disabled (>= (:week date) current-week) "next")}
+          (dom/a #js {:onClick #(handle-next-click date owner)}
             (dom/span nil "Next")))))))
