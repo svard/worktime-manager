@@ -2,3 +2,6 @@
 
 (defmacro to-week [date-str]
   `(worktime-manager.utils/get-week-number (worktime-manager.utils/str->date ~date-str)))
+
+(defmacro format-date [date-str]
+  `(worktime-manager.utils/display-date (worktime-manager.utils/str->date ~date-str)))

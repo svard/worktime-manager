@@ -4,6 +4,8 @@
             [om.dom :as dom :include-macros true]
             [worktime-manager.components.table :as tbl]
             [worktime-manager.components.pager :as pgr]
+            [worktime-manager.components.tabs :as tab]
+            [worktime-manager.components.list :as lst]
             [worktime-manager.utils :as utils]
             [cljs.core.async :refer [<! chan]]
             [cljs-http.client :as http]
@@ -16,13 +18,14 @@
 (enable-console-print!)
 
 (def app-state (atom {:reports []
+                      :stats []
                       :current-date {:week (utils/get-week-number (DateTime.))
                                      :year (.getYear (DateTime.))}
-                      :view :table}))
+                      :route :home}))
 
-(defroute "/" [] (swap! app-state assoc :view :table))
+(defroute "/" [] (swap! app-state assoc :route :home))
 
-(defroute "/statistics" [] (swap! app-state assoc :view :stats))
+(defroute "/statistics" [] (swap! app-state assoc :route :stats))
 
 (def history (History.))
 
@@ -47,7 +50,9 @@
   (reify
     om/IRender
     (render [_]
-      (dom/h3 nil "Statistics"))))
+      (dom/div #js {:className "row"}
+        (dom/h3 nil "Statistics")
+        (om/build lst/stats-list (:stats app))))))
 
 (defn table-view [app owner]
   (reify
@@ -69,9 +74,9 @@
         (om/build tbl/table app)
         (om/build pgr/pager (:current-date app) {:init-state {:nav-chan nav-chan}})))))
 
-(defmulti routing (fn [app] (:view app)))
+(defmulti routing (fn [app] (:route app)))
 
-(defmethod routing :table
+(defmethod routing :home
   []
   (fn [app owner]
     (table-view app owner)))
@@ -86,9 +91,14 @@
     (let [view (routing app)]
       (om/build view app))))
 
+(defn tabs [app owner]
+  (om/component
+    (om/build tab/tabs (:route app))))
+
 (go
   (let [year (get-in @app-state [:current-date :year])
         week (get-in @app-state [:current-date :week])
         response (<! (http/get (str utils/base-url year "/" week)))]
     (swap! app-state assoc :reports (:body response))
+    (om/root tabs app-state {:target (. js/document (getElementById "nav-tabs"))})
     (om/root entry-view app-state {:target (. js/document (getElementById "content"))})))

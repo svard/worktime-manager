@@ -9,6 +9,11 @@
             [ring.util.response :refer [response header]]
             [clojure.java.io :refer [resource]]))
 
+(defn json-response [body]
+  (-> body
+      (response)
+      (header "Content-Type" "application/json")))
+
 (defn timereport [body]
  (let [result (insert-report body)]
    (if (nil? result)
@@ -19,9 +24,7 @@
 (defn get-timereports [year-str week-str]
   (let [year (read-string year-str)
         week (dec (read-string week-str))]
-    (-> (get-reports-by-week year week)
-        (response)
-        (header "Content-Type" "application/json"))))
+    (json-response (get-reports-by-week year week))))
 
 (defn update-timereport [id body]
   (let [result (update-report id body)]
@@ -32,7 +35,8 @@
 (defroutes api-routes
   (POST "/timereport" request (timereport (:body-params request)))
   (PUT "/timereport/:id" {params :params body :body-params} (update-timereport (:id params) body))
-  (GET "/timereport/:year/:week" [year week] (get-timereports year week)))
+  (GET "/timereport/:year/:week" [year week] (get-timereports year week))
+  (GET "/stats" [] (json-response (get-stats))))
 
 (defroutes app-routes
   (context "/api" [] api-routes)

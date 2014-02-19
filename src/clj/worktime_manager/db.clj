@@ -29,3 +29,10 @@
   (let [arrival-date (from-long arrival)
         leave-date (from-long leave)]
     (update-by-id "reports" (ObjectId. ^String id) {:total total :lunch lunch :arrival arrival-date :leave leave-date})))
+
+(defn get-stats []
+  (aggregate "reports" [{"$project" {:year {"$year" "$arrival"} :total "$total" :arrival "$arrival"}}
+                        {"$sort" {"total" 1}}
+                        {"$group" {:_id "$year" :sum {"$sum" "$total"} :avg {"$avg" "$total"} :max {"$max" "$total"} :min {"$min" "$total"} :shortest {"$first" "$arrival"} :longest {"$last" "$arrival"}}}
+                        {"$project" {:sum "$sum" :avg "$avg" :longest {:time "$max" :date "$longest"} :shortest {:time "$min" :date "$shortest"}}}
+                        {"$sort" {"_id" 1}}]))
