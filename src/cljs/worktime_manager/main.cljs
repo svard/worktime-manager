@@ -91,14 +91,14 @@
     (let [view (routing app)]
       (om/build view app))))
 
-(defn tabs [app owner]
+(defn tabs [route owner]
   (om/component
-    (om/build tab/tabs (:route app))))
+    (om/build tab/tabs route)))
 
 (go
   (let [year (get-in @app-state [:current-date :year])
         week (get-in @app-state [:current-date :week])
         response (<! (http/get (str utils/base-url year "/" week)))]
     (swap! app-state assoc :reports (:body response))
-    (om/root tabs app-state {:target (. js/document (getElementById "nav-tabs"))})
+    (om/root tabs app-state {:target (. js/document (getElementById "nav-tabs")) :path [:route]})
     (om/root entry-view app-state {:target (. js/document (getElementById "content"))})))
