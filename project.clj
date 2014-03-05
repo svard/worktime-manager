@@ -1,4 +1,4 @@
-(defproject worktime-manager "0.1.17-SNAPSHOT"
+(defproject worktime-manager "0.1.18-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [;clj
@@ -51,6 +51,9 @@
                         :source-paths ["test/cljs"]
                         :compiler {
                                    :output-to "resources/public/js/test.js"
+                                   :output-dir "resources/public/js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}]
+                                   :pretty-print true
+                                   :preamble ["react/react.min.js"]
+                                   :externs ["react/externs/react.js"]}}]
               :test-commands {"phantom" ["phantomjs" :runner "resources/public/js/test.js"]}})

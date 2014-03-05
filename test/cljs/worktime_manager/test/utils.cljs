@@ -43,3 +43,31 @@
     (is (= (utils/seconds->hours 27451) 7.63))
     (is (= (utils/seconds->hours 0) 0))
     (is (= (utils/seconds->hours -5) 0))))
+
+(deftest get-week-number
+  (testing "should return week number from a date"
+    (let [date (DateTime.)]
+      (.setTime date 1394050965504)
+      (is (= (utils/get-week-number date) 10)))))
+
+(deftest diff-dates
+  (testing "should return the diff in seconds between two dates"
+    (let [d1 (DateTime.)
+          d2 (DateTime.)]
+      (.setTime d1 1394054803000)
+      (.setTime d2 1394051203000)
+      (is (= (utils/diff-dates d1 d2) 3600))))
+
+  (testing "should return 0 as diff between two equal dates"
+    (let [d1 (DateTime.)
+          d2 (DateTime.)]
+      (.setTime d1 1394054803000)
+      (.setTime d2 1394054803000)
+      (is (= (utils/diff-dates d1 d2) 0)))))
+
+(deftest disabled
+  (testing "should add disabled to a class"
+    (is (= (utils/disabled true "test") "test disabled")))
+
+  (testing "should not add disabled to a class"
+    (is (= (utils/disabled false "test") "test"))))

@@ -25,9 +25,19 @@
                        (timereport {:arriveTime 1 :leaveTime 2 :workTime 3}))]
       (is (= (:status insert-req) 500))))
 
+  (testing "successfull update"
+    (let [update-resp (with-redefs [update-report (constantly 1)]
+                        (update-timereport 1 {:arriveTime 1 :leaveTime 2 :workTime 3}))]
+      (is (= (:status update-resp) 200))))
+
+  (testing "failed update"
+    (let [update-resp (with-redefs [update-report (constantly nil)]
+                        (update-timereport 1 {:arriveTime 1 :leaveTime 2 :workTime 3}))]
+      (is (= (:status update-resp) 500))))
+
   (testing "getting timereport"
     (let [fetch (with-redefs [get-reports-by-week (constantly {:total 100 :arrive 100 :leave 100})]
                   (get-timereports "2014" "6"))]
       (is (= (:status fetch) 200))
       (is (= (:headers fetch) {"Content-Type" "application/json"}))
-      (is (= (:body fetch) "{\"total\":100,\"leave\":100,\"arrive\":100}")))))
+      (is (= (:body fetch) {:total 100, :leave 100, :arrive 100})))))
