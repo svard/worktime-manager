@@ -1,4 +1,4 @@
-(defproject worktime-manager "0.1.18-SNAPSHOT"
+(defproject worktime-manager "0.1.19-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [;clj
@@ -10,8 +10,8 @@
                  [clj-time "0.6.0"]
                  [com.novemberain/monger "1.7.0"]
                  ;cljs
-                 [org.clojure/clojurescript "0.0-2156"]
-                 [om "0.5.0"]
+                 [org.clojure/clojurescript "0.0-2173"]
+                 [om "0.5.1"]
                  [com.facebook/react "0.8.0.1"]
                  [cljs-http "0.1.6"]
                  [secretary "0.7.1"]]
