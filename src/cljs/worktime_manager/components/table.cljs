@@ -52,7 +52,7 @@
 
 (defn end-edit-lunch [report new-time]
   (let [seconds (* new-time 3600)]
-    (om/update! report assoc :lunch seconds)
+    (om/update! report [:lunch] seconds)
     (om/transact! report [:total] (fn [] (- (utils/diff-dates (js/Date. (:leave @report)) (js/Date. (:arrival @report))) seconds)))
     (update @report)))
 

@@ -1,4 +1,4 @@
-(defproject worktime-manager "0.1.19-SNAPSHOT"
+(defproject worktime-manager "0.1.20-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [;clj
@@ -11,8 +11,7 @@
                  [com.novemberain/monger "1.7.0"]
                  ;cljs
                  [org.clojure/clojurescript "0.0-2173"]
-                 [om "0.5.1"]
-                 [com.facebook/react "0.8.0.1"]
+                 [om "0.5.2"]
                  [cljs-http "0.1.6"]
                  [secretary "0.7.1"]]
 
@@ -51,9 +50,8 @@
                         :source-paths ["test/cljs"]
                         :compiler {
                                    :output-to "resources/public/js/test.js"
-                                   :output-dir "resources/public/js"
                                    :optimizations :whitespace
-                                   :pretty-print true
-                                   :preamble ["react/react.min.js"]
-                                   :externs ["react/externs/react.js"]}}]
-              :test-commands {"phantom" ["phantomjs" :runner "resources/public/js/test.js"]}})
+                                   :pretty-print true}}]
+              :test-commands {"phantom" ["phantomjs" :runner
+                                         "this.literal_js_was_evaluated=true"
+                                         "resources/public/js/test.js"]}})
