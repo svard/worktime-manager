@@ -77,19 +77,18 @@
 (defmulti routing (fn [app] (:route app)))
 
 (defmethod routing :home
-  []
-  (fn [app owner]
-    (table-view app owner)))
+  [app owner]
+    (table-view app owner))
 
 (defmethod routing :stats
-  []
-  (fn [app owner]
-    (statistics-view app owner)))
+  [app owner]
+    (statistics-view app owner))
 
 (defn entry-view [app owner]
-  (om/component
-    (let [view (routing app)]
-      (om/build view app))))
+  (reify
+    om/IRenderState
+    (render-state [_ _]
+      (om/build routing app))))
 
 (defn tabs [route owner]
   (om/component
