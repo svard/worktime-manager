@@ -2,6 +2,7 @@
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [worktime-manager.utils :as utils]
+            [worktime-manager.components.editable :refer [editable]]
             [clojure.string :as string]
             [cljs-http.client :as http]
             [goog.json :as json])
@@ -9,22 +10,9 @@
 
 (def ENTER_KEY 13)
 
-(defn format-cell [cell report]
-  (let [from (utils/str->date (:arrival report))
-        to (utils/str->date (:leave report))]
-    (cond
-      (= cell "date") (utils/display-date from)
-      (= cell "from") (utils/display-time from)
-      (= cell "to") (utils/display-time to)
-      (= cell "lunch") (utils/seconds->hours (:lunch report))
-      (= cell "total") (utils/seconds->hours (:total report)))))
-
 (defn total-worktime [reports]
   (-> (reduce #(+ % (:total %2)) 0 reports)
       (utils/seconds->hours)))
-
-(defn handle-change [app e]
-  nil)
 
 (defn update [body]
   (let [url (str utils/base-url (:_id body))]
@@ -60,27 +48,16 @@
   (reify
     om/IRender
     (render [_]
-      (let [total (format-cell "total" report)]
+      (let [total (utils/format-cell :total report)]
         (dom/tr #js {:className (if (< total 7.75) "danger" "success")}
-          (dom/td nil
-            (dom/input #js {:type "text" :value (format-cell "date" report)}))
-          (dom/td nil
-            (dom/input #js {:type "text" :value (format-cell "from" report)
-                            :onChange #(handle-change report %)
-                            :onKeyUp #(when (== (.-keyCode %) ENTER_KEY)
-                                        (end-edit-from report (.. % -target -value)))}))
-          (dom/td nil
-            (dom/input #js {:type "text" :value (format-cell "to" report)
-                            :onChange #(handle-change report %)
-                            :onKeyUp #(when (== (.-keyCode %) ENTER_KEY)
-                                        (end-edit-to report (.. % -target -value)))}))
-          (dom/td nil
-            (dom/input #js {:type "text" :value (format-cell "lunch" report)
-                            :onChange #(handle-change report %)
-                            :onKeyUp #(when (== (.-keyCode %) ENTER_KEY)
-                                        (end-edit-lunch report (.. % -target -value)))}))
-          (dom/td nil
-            (dom/input #js {:type "text" :value total})))))))
+          (dom/td nil (utils/format-cell :date report))
+          (om/build editable report {:opts {:column :from
+                                            :end-edit end-edit-from}})
+          (om/build editable report {:opts {:column :to
+                                            :end-edit end-edit-to}})
+          (om/build editable report {:opts {:column :lunch
+                                            :end-edit end-edit-lunch}})
+          (dom/td nil (utils/format-cell :total report)))))))
 
 (defn table [app owner]
   (reify

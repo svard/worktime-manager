@@ -37,3 +37,13 @@
   (if disable
     (str classes " disabled")
     classes))
+
+(defn format-cell [column report]
+  (let [from (str->date (:arrival report))
+        to (str->date (:leave report))]
+    (cond
+      (= column :date) (display-date from)
+      (= column :from) (display-time from)
+      (= column :to) (display-time to)
+      (= column :lunch) (seconds->hours (:lunch report))
+      (= column :total) (seconds->hours (:total report)))))
