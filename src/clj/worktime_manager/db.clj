@@ -23,7 +23,8 @@
 (defn get-reports-by-week [year week]
   (aggregate "reports" [{"$project" {:total "$total" :arrival "$arrival" :leave "$leave" :lunch "$lunch" :week {"$week" "$arrival"} :year {"$year" "$arrival"}}}
                         {"$match" {:week week :year year}}
-                        {"$project" {:total "$total" :arrival "$arrival" :leave "$leave" :lunch "$lunch"}}]))
+                        {"$project" {:total "$total" :arrival "$arrival" :leave "$leave" :lunch "$lunch"}}
+                        {"$sort" {"arrival" 1}}]))
 
 (defn update-report [id {:keys [total arrival leave lunch] :as report}]
   (let [arrival-date (from-long arrival)
