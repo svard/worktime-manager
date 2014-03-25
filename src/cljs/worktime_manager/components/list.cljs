@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [worktime-manager.utils :refer [format-date]])
   (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
             [cljs.core.async :refer [<!]]
             [cljs-http.client :as http]
             [worktime-manager.utils :as utils]))
@@ -20,8 +20,8 @@
       (let [stat (first stats)
             longest (:longest stat)
             shortest (:shortest stat)]
-        (dom/ul nil
-          (dom/li nil (str "Total working hours " (utils/seconds->hours (:sum stat)) " hours"))
-          (dom/li nil (str "Average working hours " (utils/seconds->hours (:avg stat)) " hours"))
-          (dom/li nil (str "Longest working day " (format-date (:date longest)) " -> " (utils/seconds->hours (:time longest)) " hours"))
-          (dom/li nil (str "Shortest working day " (format-date (:date shortest)) " -> " (utils/seconds->hours (:time shortest)) " hours")))))))
+        (html [:ul
+               [:li (str "Total working hours " (utils/seconds->hours (:sum stat)) " hours")]
+               [:li (str "Average working hours " (utils/seconds->hours (:avg stat)) " hours")]
+               [:li (str "Longest working day " (format-date (:date longest)) " -> " (utils/seconds->hours (:time longest)) " hours")]
+               [:li (str "Shortest working day " (format-date (:date shortest)) " -> " (utils/seconds->hours (:time shortest)) " hours")]])))))

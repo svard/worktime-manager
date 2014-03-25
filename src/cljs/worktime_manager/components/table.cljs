@@ -1,6 +1,6 @@
 (ns worktime-manager.components.table
   (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
             [worktime-manager.utils :as utils]
             [worktime-manager.components.editable :refer [editable]]
             [clojure.string :as string]
@@ -49,34 +49,34 @@
     om/IRender
     (render [_]
       (let [total (utils/format-cell :total report)]
-        (dom/tr #js {:className (if (< total 7.75) "danger" "success")}
-          (dom/td nil (utils/format-cell :date report))
-          (om/build editable report {:opts {:column :from
-                                            :end-edit end-edit-from}})
-          (om/build editable report {:opts {:column :to
-                                            :end-edit end-edit-to}})
-          (om/build editable report {:opts {:column :lunch
-                                            :end-edit end-edit-lunch}})
-          (dom/td nil (utils/format-cell :total report)))))))
+        (html [:tr {:class (if (< total 7.75) "danger" "success")}
+               [:td nil (utils/format-cell :date report)]
+               (om/build editable report {:opts {:column :from
+                                                 :end-edit end-edit-from}})
+               (om/build editable report {:opts {:column :to
+                                                 :end-edit end-edit-to}})
+               (om/build editable report {:opts {:column :lunch
+                                                 :end-edit end-edit-lunch}})
+               [:td (utils/format-cell :total report)]])))))
 
 (defn table [app owner]
   (reify
     om/IRender
     (render [_]
-      (dom/div #js {:className "table-responsive"}
-        (dom/table #js {:className "table table-striped"}
-          (dom/thead nil
-            (dom/tr nil
-              (dom/th nil "Date")
-              (dom/th nil "From")
-              (dom/th nil "To")
-              (dom/th nil "Lunch")
-              (dom/th nil "Total")))
-          (apply dom/tbody nil
-            (map #(om/build table-row %) (:reports app)))
-          (dom/tr nil
-            (dom/td nil "")
-            (dom/td nil "")
-            (dom/td nil "")
-            (dom/td nil "")
-            (dom/td nil (total-worktime (:reports app)))))))))
+      (html [:div.table-responsive
+             [:table.table.table-striped
+              [:thead
+               [:tr
+                [:th "Date"]
+                [:th "From"]
+                [:th "To"]
+                [:th "Lunch"]
+                [:th "Total"]]]
+              [:tbody
+               (map #(om/build table-row % {:key :_id}) (:reports app))]
+              [:tr
+               [:td ""]
+               [:td ""]
+               [:td ""]
+               [:td ""]
+               [:td nil (total-worktime (:reports app))]]]]))))

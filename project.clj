@@ -1,4 +1,4 @@
-(defproject worktime-manager "0.1.23-SNAPSHOT"
+(defproject worktime-manager "0.1.24"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [;clj
@@ -11,9 +11,10 @@
                  [com.novemberain/monger "1.7.0"]
                  ;cljs
                  [org.clojure/clojurescript "0.0-2173"]
-                 [om "0.5.2"]
+                 [om "0.5.3"]
                  [cljs-http "0.1.6"]
-                 [secretary "0.7.1"]]
+                 [secretary "0.7.1"]
+                 [sablono "0.2.14"]]
 
   :source-paths ["src/clj" "src/cljs"]
 

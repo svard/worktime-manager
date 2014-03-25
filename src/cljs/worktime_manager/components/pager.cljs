@@ -1,6 +1,6 @@
 (ns worktime-manager.components.pager
   (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
             [worktime-manager.utils :as utils]
             [cljs.core.async :refer [put!]])
   (:import [goog.date DateTime]))
@@ -29,9 +29,9 @@
        :current-week (utils/get-week-number (DateTime.))})
     om/IRenderState
     (render-state [_ {:keys [first-week current-week]}]
-      (dom/ul #js {:className "pager"}
-        (dom/li #js {:className (utils/disabled (<= (:week date) first-week) "previous")}
-          (dom/a #js {:onClick #(handle-prev-click date owner)} "Previous"))
-        (dom/li #js {:className (utils/disabled (>= (:week date) current-week) "next")}
-          (dom/a #js {:onClick #(handle-next-click date owner)}
-            (dom/span nil "Next")))))))
+      (html [:ul.pager
+             [:li {:class (utils/disabled (<= (:week date) first-week) "previous")}
+              [:a {:on-click #(handle-prev-click date owner)} "Previous"]]
+             [:li {:class (utils/disabled (>= (:week date) current-week) "next")}
+              [:a {:on-click #(handle-next-click date owner)}
+               [:span "Next"]]]]))))

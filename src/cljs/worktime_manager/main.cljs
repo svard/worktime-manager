@@ -1,7 +1,7 @@
 (ns worktime-manager.main
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
             [worktime-manager.components.table :as tbl]
             [worktime-manager.components.pager :as pgr]
             [worktime-manager.components.tabs :as tab]
@@ -44,15 +44,15 @@
 
 (defn table-title-view [date owner]
   (om/component
-   (dom/h4 #js {:className "text-center"} (str "Showing w" (:week date) " " (:year date)))))
+    (html [:h4.text-center (str "Showing w" (:week date) " " (:year date))])))
 
 (defn statistics-view [app owner]
   (reify
     om/IRender
     (render [_]
-      (dom/div #js {:className "row"}
-        (dom/h3 nil "Statistics")
-        (om/build lst/stats-list (:stats app))))))
+      (html [:div {:class "row"}
+             [:h3 "Statistics"]
+             (om/build lst/stats-list (:stats app))]))))
 
 (defn table-view [app owner]
   (reify
@@ -69,10 +69,10 @@
               (recur))))))
     om/IRenderState
     (render-state [_ {:keys [nav-chan]}]
-      (dom/div #js {:className "row"}
-        (om/build table-title-view (:current-date app))
-        (om/build tbl/table app)
-        (om/build pgr/pager (:current-date app) {:init-state {:nav-chan nav-chan}})))))
+      (html [:div.row
+             (om/build table-title-view (:current-date app))
+             (om/build tbl/table app)
+             (om/build pgr/pager (:current-date app) {:init-state {:nav-chan nav-chan}})]))))
 
 (defmulti routing (fn [app] (:route app)))
 

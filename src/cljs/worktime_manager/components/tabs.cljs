@@ -1,17 +1,17 @@
 (ns worktime-manager.components.tabs
   (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
             [worktime-manager.utils :as utils]))
 
 (defn active? [is-active]
   (if is-active
-    #js {:className "active"}
-    #js {}))
+    {:class "active"}
+    {}))
 
 (defn tabs [route owner]
   (om/component
-    (dom/ul #js {:className "nav nav-tabs"}
-      (dom/li (active? (= route :home))
-        (dom/a #js {:href "#/"} "Home"))
-      (dom/li (active? (= route :stats))
-        (dom/a #js {:href "#/statistics"} "Statistics")))))
+    (html [:ul.nav.nav-tabs
+           [:li (active? (= route :home))
+            [:a {:href "#/"} "Home"]]
+           [:li (active? (= route :stats))
+            [:a {:href "#/statistics"} "Statistics"]]])))

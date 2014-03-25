@@ -1,6 +1,6 @@
 (ns worktime-manager.components.editable
   (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
             [worktime-manager.utils :refer [format-cell]]))
 
 (defn display [show]
@@ -16,18 +16,16 @@
     om/IRenderState
     (render-state [_ {:keys [editing]}]
       (let [text (format-cell column data)]
-        (dom/td nil
-          (dom/span
-            #js {:style (display (not editing))
-                 :onDoubleClick #(om/set-state! owner :editing true)}
-            text)
-          (dom/input
-            #js {:style (display editing)
-                 :value text
-                 :size 10
-                 :onChange #(.. % -target -value)
-                 :onKeyPress (fn [evt]
-                               (when (== (.-keyCode evt) 13)
-                                 (end-edit data (.. evt -target -value))
-                                 (om/set-state! owner :editing false)))
-                 :onBlur #(om/set-state! owner :editing false)}))))))
+        (html [:td
+               [:span {:style (display (not editing))
+                       :on-double-click #(om/set-state! owner :editing true)}
+                text]
+               [:input {:style (display editing)
+                        :value text
+                        :size 10
+                        :on-change #(.. % -target -value)
+                        :on-key-press (fn [evt]
+                                        (when (== (.-keyCode evt) 13)
+                                          (end-edit data (.. evt -target -value))
+                                          (om/set-state! owner :editing false)))
+                        :on-blur #(om/set-state! owner :editing false)}]])))))
