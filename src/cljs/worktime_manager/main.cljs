@@ -21,11 +21,16 @@
                       :stats []
                       :current-date {:week (utils/get-week-number (DateTime.))
                                      :year (.getYear (DateTime.))}
-                      :route :home}))
+                      :route :home
+                      :valid-years [2014]}))
 
-(defroute "/" [] (swap! app-state assoc :route :home))
+(defroute "/"
+  []
+  (swap! app-state assoc :route :home))
 
-(defroute "/statistics" [] (swap! app-state assoc :route :stats))
+(defroute "/statistics"
+  []
+  (swap! app-state assoc :route :stats))
 
 (def history (History.))
 
@@ -35,40 +40,35 @@
 
 (.setEnabled history true)
 
-(defn load-data [app year week]
-  (go
-    (let [url (str utils/base-url year "/" week)
-          response (<! (http/get url))]
-      (when (= (:status response) 200)
-        (om/update! app :reports (:body response))))))
+(def nav-chan (chan))
 
-(defn table-title-view [date owner]
+(defn yearly-stats [app]
+  (if (empty? (:stats app))
+    (:stats app)
+    (-> (filter (fn [item]
+              (= (:_id item) (get-in app [:current-date :year])))
+            (:stats app))
+        (first))))
+
+(defn table-title-view
+  [date owner]
   (om/component
     (html [:h4.text-center (str "Showing w" (:week date) " " (:year date))])))
 
-(defn statistics-view [app owner]
+(defn statistics-view
+  [app owner]
   (reify
     om/IRender
     (render [_]
       (html [:div {:class "row"}
              [:h3 "Statistics"]
-             (om/build lst/stats-list (:stats app))]))))
+             (om/build lst/stats-list (yearly-stats app))]))))
 
-(defn table-view [app owner]
+(defn table-view
+  [app owner]
   (reify
-    om/IInitState
-    (init-state [_]
-      {:nav-chan (chan)})
-    om/IWillMount
-    (will-mount [_]
-      (go
-        (let [nav-chan (om/get-state owner :nav-chan)]
-          (loop []
-            (let [[year week] (<! nav-chan)]
-              (load-data app year week)
-              (recur))))))
-    om/IRenderState
-    (render-state [_ {:keys [nav-chan]}]
+    om/IRender
+    (render [_]
       (html [:div.row
              (om/build table-title-view (:current-date app))
              (om/build tbl/table app)
@@ -84,13 +84,15 @@
   [app owner]
     (statistics-view app owner))
 
-(defn entry-view [app owner]
+(defn entry-view
+  [app owner]
   (reify
     om/IRenderState
     (render-state [_ _]
       (om/build routing app))))
 
-(defn tabs [route owner]
+(defn tabs
+  [route owner]
   (om/component
     (om/build tab/tabs route)))
 
@@ -99,5 +101,16 @@
         week (get-in @app-state [:current-date :week])
         response (<! (http/get (str utils/base-url year "/" week)))]
     (swap! app-state assoc :reports (:body response))
-    (om/root tabs app-state {:target (. js/document (getElementById "nav-tabs")) :path [:route]})
+    (om/root tabs app-state {:target (. js/document (getElementById "nav-tabs"))
+                             :shared {:nav-chan nav-chan}})
     (om/root entry-view app-state {:target (. js/document (getElementById "content"))})))
+
+(go
+ (loop []
+   (let [[year week] (<! nav-chan)
+         url (str utils/base-url year "/" week)
+         response (<! (http/get url))]
+     (when (= (:status response) 200)
+       (swap! app-state assoc :reports (:body response))))
+   (recur)))
+
