@@ -13,11 +13,8 @@
     (om/set-state! owner :selected-val new-val)
     (callback new-val old-val)))
 
-(defn dropdown [data owner {:keys [value-key on-change-fn] :as opts}]
+(defn dropdown [data owner {:keys [value-key on-change-fn init-val] :as opts}]
   (reify
-    om/IInitState
-    (init-state [_]
-      {:selected-val (last (get data value-key))})
     om/IRenderState
     (render-state [_ {:keys [selected-val]}]
       (let [values (get data value-key)]

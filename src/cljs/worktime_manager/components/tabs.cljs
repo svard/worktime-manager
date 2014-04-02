@@ -9,12 +9,15 @@
     {:class "active"}
     {}))
 
-(defn change-year [app owner new-val old-val]
+(defn change-value [app owner type new-val old-val]
   (when (not= new-val old-val)
     (let [ch (om/get-shared owner :nav-chan)
+          year (get-in @app [:current-date :year])
           week (get-in @app [:current-date :week])]
-      (om/update! app [:current-date :year] new-val)
-      (put! ch [new-val week]))))
+      (om/update! app [:current-date type] new-val)
+      (case type
+        :year (put! ch [new-val week])
+        :week (put! ch [year new-val])))))
 
 (defn tabs [app owner]
   (reify
@@ -28,4 +31,10 @@
              [:li.dropdown
               [:a.dropdown-toggle {:data-toggle "dropdown"} "Year " [:span.caret]]
               (om/build dropdown app {:opts {:value-key :valid-years
-                                             :on-change-fn (partial change-year app owner)}})]]))))
+                                             :on-change-fn (partial change-value app owner :year)}
+                                      :init-state {:selected-val (get-in app [:current-date :year])}})]
+             [:li.dropdown
+              [:a.dropdown-toggle {:data-toggle "dropdown"} "Week " [:span.caret]]
+              (om/build dropdown app {:opts {:value-key :valid-weeks
+                                             :on-change-fn (partial change-value app owner :week)}
+                                      :init-state {:selected-val (get-in app [:current-date :week])}})]]))))

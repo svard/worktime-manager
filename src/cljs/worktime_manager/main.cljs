@@ -22,7 +22,8 @@
                       :current-date {:week (utils/get-week-number (DateTime.))
                                      :year (.getYear (DateTime.))}
                       :route :home
-                      :valid-years [2014]}))
+                      :valid-years [2013 2014]
+                      :valid-weeks (range 1 53)}))
 
 (defroute "/"
   []
