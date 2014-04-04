@@ -12,10 +12,13 @@
 
 .nav-tabs {
   a {
+    position: relative;
     cursor: pointer;
   }
 }
 
 .selected-year {
-  float: right;
+  position: absolute;
+  right: 15px;
+  top: calc(50% - 7px);
 }

@@ -5,7 +5,7 @@
             [worktime-manager.components.table :as tbl]
             [worktime-manager.components.pager :as pgr]
             [worktime-manager.components.tabs :as tab]
-            [worktime-manager.components.list :as lst]
+            [worktime-manager.stats :refer [stats-table]]
             [worktime-manager.utils :as utils]
             [cljs.core.async :refer [<! chan]]
             [cljs-http.client :as http]
@@ -22,7 +22,7 @@
                       :current-date {:week (utils/get-week-number (DateTime.))
                                      :year (.getYear (DateTime.))}
                       :route :home
-                      :valid-years [2013 2014]
+                      :valid-years [2014]
                       :valid-weeks (range 1 53)}))
 
 (defroute "/"
@@ -43,14 +43,6 @@
 
 (def nav-chan (chan))
 
-(defn yearly-stats [app]
-  (if (empty? (:stats app))
-    (:stats app)
-    (-> (filter (fn [item]
-              (= (:_id item) (get-in app [:current-date :year])))
-            (:stats app))
-        (first))))
-
 (defn table-title-view
   [date owner]
   (om/component
@@ -62,8 +54,8 @@
     om/IRender
     (render [_]
       (html [:div {:class "row"}
-             [:h3 "Statistics"]
-             (om/build lst/stats-list (yearly-stats app))]))))
+             [:h4.text-center "Statistics"]
+             (om/build stats-table (:stats app))]))))
 
 (defn table-view
   [app owner]

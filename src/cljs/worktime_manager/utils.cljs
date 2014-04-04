@@ -3,6 +3,8 @@
 
 (def ^:const base-url "/api/timereport/")
 
+(def month-name ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"])
+
 (defn str->date [date-str]
   (let [jsdate (js/Date. date-str)
         datetime (DateTime.)]
@@ -14,6 +16,11 @@
   (let [month (inc (.getMonth date))
         day (.getDate date)]
     (str (.getYear date) "-" (if (< month 10) (str "0" month) month) "-" (if (< day 10) (str "0" day) day))))
+
+(defn display-short-date [date]
+  (let [month (.getMonth date)
+        day (.getDate date)]
+    (str (get month-name month) " " day)))
 
 (defn display-time [date]
   (let [hours (.getHours date)
