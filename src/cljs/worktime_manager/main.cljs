@@ -7,7 +7,7 @@
             [worktime-manager.components.tabs :as tab]
             [worktime-manager.stats :refer [stats-table]]
             [worktime-manager.utils :as utils]
-            [cljs.core.async :refer [<! chan]]
+            [cljs.core.async :refer [<! chan] :as async]
             [cljs-http.client :as http]
             [secretary.core :as secretary :include-macros true :refer [defroute]]
             [goog.events :as events])
@@ -42,6 +42,8 @@
 (.setEnabled history true)
 
 (def nav-chan (chan))
+
+(def broadcast-chan (async/mult nav-chan))
 
 (defn table-title-view
   [date owner]
@@ -95,15 +97,18 @@
         response (<! (http/get (str utils/base-url year "/" week)))]
     (swap! app-state assoc :reports (:body response))
     (om/root tabs app-state {:target (. js/document (getElementById "nav-tabs"))
-                             :shared {:nav-chan nav-chan}})
+                             :shared {:nav-chan nav-chan
+                                      :broadcast-chan broadcast-chan}})
     (om/root entry-view app-state {:target (. js/document (getElementById "content"))})))
 
-(go
- (loop []
-   (let [[year week] (<! nav-chan)
-         url (str utils/base-url year "/" week)
-         response (<! (http/get url))]
-     (when (= (:status response) 200)
-       (swap! app-state assoc :reports (:body response))))
-   (recur)))
+(let [txs (chan)]
+  (async/tap broadcast-chan txs)
+  (go
+   (loop []
+     (let [[year week] (<! txs)
+           url (str utils/base-url year "/" week)
+           response (<! (http/get url))]
+       (when (= (:status response) 200)
+         (swap! app-state assoc :reports (:body response))))
+     (recur))))
 

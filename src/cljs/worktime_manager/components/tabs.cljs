@@ -1,7 +1,7 @@
 (ns worktime-manager.components.tabs
   (:require [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
-            [cljs.core.async :refer [put!]]
+            [cljs.core.async :refer [put!] :as async]
             [worktime-manager.components.selectable :refer [dropdown]]))
 
 (defn active? [is-active]
