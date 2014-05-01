@@ -30,11 +30,9 @@
               [:a {:href "#/statistics"} "Statistics"]]
              [:li.dropdown
               [:a.dropdown-toggle {:data-toggle "dropdown"} "Year " [:span.caret]]
-              (om/build dropdown app {:opts {:value-key :valid-years
-                                             :on-change-fn (partial change-value app owner :year)}
-                                      :init-state {:selected-val (get-in app [:current-date :year])}})]
+              (om/build dropdown (get-in app [:current-date :year]) {:opts {:on-change-fn (partial change-value app owner :year)}
+                                                                     :init-state {:options [2014]}})]
              [:li.dropdown
               [:a.dropdown-toggle {:data-toggle "dropdown"} "Week " [:span.caret]]
-              (om/build dropdown app {:opts {:value-key :valid-weeks
-                                             :on-change-fn (partial change-value app owner :week)}
-                                      :init-state {:selected-val (get-in app [:current-date :week])}})]]))))
+              (om/build dropdown (get-in app [:current-date :week]) {:opts {:on-change-fn (partial change-value app owner :week)}
+                                                                     :init-state {:options (range 1 53)}})]]))))

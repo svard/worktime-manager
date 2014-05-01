@@ -5,32 +5,20 @@
             [cljs.reader :refer [read-string]]
             [cljs.core.async :refer [<! chan alts!] :as async]))
 
-(defn- check-selected [value owner]
-  (when (= value (om/get-state owner :selected-val))
+(defn- check-selected [option selected]
+  (when (= option selected)
     [:span.glyphicon.glyphicon-ok.selected-year]))
 
-(defn- select! [evt owner callback]
-  (let [new-val (read-string (.. evt -target -textContent))
-        old-val (om/get-state owner :selected-val)]
-    (om/set-state! owner :selected-val new-val)
+(defn- select! [evt old-val callback]
+  (let [new-val (read-string (.. evt -target -textContent))]
     (callback new-val old-val)))
 
-(defn dropdown [data owner {:keys [value-key on-change-fn init-val] :as opts}]
+(defn dropdown [selected owner {:keys [on-change-fn] :as opts}]
   (reify
-    om/IWillMount
-    (will-mount [_]
-      (let [broadcast-chan (om/get-shared owner :broadcast-chan)
-            txs (chan)]
-        (async/tap broadcast-chan txs)
-        (go (loop []
-              (let [[_ week] (<! txs)]
-                (om/set-state! owner :selected-val week))
-              (recur)))))
     om/IRenderState
-    (render-state [_ {:keys [selected-val]}]
-      (let [values (get data value-key)]
-        (html [:ul.dropdown-menu
-               {:on-click #(select! % owner on-change-fn)}
-               (for [value values]
-                 [:li
-                  [:a value (check-selected value owner)]])])))))
+    (render-state [_ {:keys [options]}]
+      (html [:ul.dropdown-menu
+             {:on-click #(select! % selected on-change-fn)}
+             (for [option options]
+               [:li
+                [:a option (check-selected option selected)]])]))))

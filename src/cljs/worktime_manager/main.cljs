@@ -21,9 +21,7 @@
                       :stats []
                       :current-date {:week (utils/get-week-number (DateTime.))
                                      :year (.getYear (DateTime.))}
-                      :route :home
-                      :valid-years [2014]
-                      :valid-weeks (range 1 53)}))
+                      :route :home}))
 
 (defroute "/"
   []
@@ -42,8 +40,6 @@
 (.setEnabled history true)
 
 (def nav-chan (chan))
-
-(def broadcast-chan (async/mult nav-chan))
 
 (defn table-title-view
   [date owner]
@@ -97,18 +93,16 @@
         response (<! (http/get (str utils/base-url year "/" week)))]
     (swap! app-state assoc :reports (:body response))
     (om/root tabs app-state {:target (. js/document (getElementById "nav-tabs"))
-                             :shared {:nav-chan nav-chan
-                                      :broadcast-chan broadcast-chan}})
+                             :shared {:nav-chan nav-chan}})
     (om/root entry-view app-state {:target (. js/document (getElementById "content"))})))
 
-(let [txs (chan)]
-  (async/tap broadcast-chan txs)
-  (go
-   (loop []
-     (let [[year week] (<! txs)
-           url (str utils/base-url year "/" week)
-           response (<! (http/get url))]
-       (when (= (:status response) 200)
-         (swap! app-state assoc :reports (:body response))))
-     (recur))))
+(go
+ (loop []
+   (let [[year week] (<! nav-chan)
+         url (str utils/base-url year "/" week)
+         response (<! (http/get url))]
+     (when (= (:status response) 200)
+       (swap! app-state assoc :reports (:body response))))
+   (recur)))
+
 
