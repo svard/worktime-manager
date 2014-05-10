@@ -3,8 +3,8 @@
             [sablono.core :as html :refer-macros [html]]
             [worktime-manager.utils :as utils]
             [worktime-manager.components.editable :refer [editable]]
+            [worktime-manager.xhr :refer [xhr]]
             [clojure.string :as string]
-            [cljs-http.client :as http]
             [goog.json :as json])
   (:import [goog.date DateTime]))
 
@@ -14,9 +14,16 @@
   (-> (reduce #(+ % (:total %2)) 0 reports)
       (utils/seconds->hours)))
 
+;; (defn update [body]
+;;   (let [url (str utils/base-url (:_id body))]
+;;     (http/put url {:body (dissoc body :_id) :headers {"Content-Type" "application/edn"}})))
+
 (defn update [body]
   (let [url (str utils/base-url (:_id body))]
-    (http/put url {:body (dissoc body :_id) :headers {"Content-Type" "application/edn"}})))
+    (xhr {:url url
+          :method :put
+          :data (dissoc body :_id)
+          :content"application/edn"})))
 
 (defn end-edit-from [report new-time]
   (let [[hours minutes seconds] (string/split new-time #":")

@@ -7,8 +7,8 @@
             [worktime-manager.components.tabs :as tab]
             [worktime-manager.stats :refer [stats-table]]
             [worktime-manager.utils :as utils]
+            [worktime-manager.xhr :refer [xhr]]
             [cljs.core.async :refer [<! chan] :as async]
-            [cljs-http.client :as http]
             [secretary.core :as secretary :include-macros true :refer [defroute]]
             [goog.events :as events])
   (:import [goog.date DateTime]
@@ -89,9 +89,12 @@
 
 (go
   (let [year (get-in @app-state [:current-date :year])
-        week (get-in @app-state [:current-date :week])
-        response (<! (http/get (str utils/base-url year "/" week)))]
-    (swap! app-state assoc :reports (:body response))
+        week (get-in @app-state [:current-date :week])]
+    (xhr {:url (str utils/base-url year "/" week)
+          :method :get
+          :content "application/json"
+          :on-complete (fn [resp]
+                         (swap! app-state assoc :reports resp))})
     (om/root tabs app-state {:target (. js/document (getElementById "nav-tabs"))
                              :shared {:nav-chan nav-chan}})
     (om/root entry-view app-state {:target (. js/document (getElementById "content"))})))
@@ -99,10 +102,11 @@
 (go
  (loop []
    (let [[year week] (<! nav-chan)
-         url (str utils/base-url year "/" week)
-         response (<! (http/get url))]
-     (when (= (:status response) 200)
-       (swap! app-state assoc :reports (:body response))))
-   (recur)))
-
+         url (str utils/base-url year "/" week)]
+     (xhr {:url url
+           :method :get
+           :content "application/json"
+           :on-complete (fn [resp]
+                          (swap! app-state assoc :reports resp))})
+   (recur))))
 
