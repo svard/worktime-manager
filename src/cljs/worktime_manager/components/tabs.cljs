@@ -23,16 +23,17 @@
   (reify
     om/IRender
     (render [_]
-      (html [:ul.nav.nav-tabs
-             [:li (active? (= (:route app) :home))
-              [:a {:href "#/"} "Home"]]
-             [:li (active? (= (:route app) :stats))
-              [:a {:href "#/statistics"} "Statistics"]]
-             [:li.dropdown
-              [:a.dropdown-toggle {:data-toggle "dropdown"} "Year " [:span.caret]]
-              (om/build dropdown (get-in app [:current-date :year]) {:opts {:on-change-fn (partial change-value app owner :year)}
-                                                                     :init-state {:options [2014]}})]
-             [:li.dropdown
-              [:a.dropdown-toggle {:data-toggle "dropdown"} "Week " [:span.caret]]
-              (om/build dropdown (get-in app [:current-date :week]) {:opts {:on-change-fn (partial change-value app owner :week)}
-                                                                     :init-state {:options (range 1 53)}})]]))))
+      (let [selectable-years (range 2014 (inc (.getFullYear (js/Date.))))]
+        (html [:ul.nav.nav-tabs
+               [:li (active? (= (:route app) :home))
+                [:a {:href "#/"} "Home"]]
+               [:li (active? (= (:route app) :stats))
+                [:a {:href "#/statistics"} "Statistics"]]
+               [:li.dropdown
+                [:a.dropdown-toggle {:data-toggle "dropdown"} "Year " [:span.caret]]
+                (om/build dropdown (get-in app [:current-date :year]) {:opts {:on-change-fn (partial change-value app owner :year)}
+                                                                       :init-state {:options selectable-years}})]
+               [:li.dropdown
+                [:a.dropdown-toggle {:data-toggle "dropdown"} "Week " [:span.caret]]
+                (om/build dropdown (get-in app [:current-date :week]) {:opts {:on-change-fn (partial change-value app owner :week)}
+                                                                       :init-state {:options (range 1 54)}})]])))))
